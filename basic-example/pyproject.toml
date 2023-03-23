@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "basic-example"
+version = "0.1.0"
+description = ""
+authors = ["Hunter Henrichsen <hunter.henrichsen@gmail.com>"]
+readme = "README.md"
+packages = [{include = "basic_example"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
