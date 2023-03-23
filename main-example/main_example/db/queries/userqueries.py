@@ -1,15 +1,19 @@
 from uuid import UUID
 
-
-from db.connection import pool
+from db import Connection
 from db.models.user import User
-from services.password.argonpassword import Argon2PasswordService
+from services.password.password import PasswordService
 from util.valid import validate_param
 
 
 class UserQueries:
-    def __init__(self):
-        self.__hasher = Argon2PasswordService()
+    def __init__(
+        self,
+        connection: Connection,
+        hasher: PasswordService
+    ):
+        self.__connection = connection
+        self.__hasher = hasher
 
     def create_user(
         self, username: str, email: str, raw_password: str, display_name: str
@@ -21,7 +25,7 @@ class UserQueries:
 
         hashed_password = self.__hasher.hash(raw_password)
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
             cursor.execute(
                 """
@@ -39,7 +43,7 @@ class UserQueries:
     def get_user_by_id(self, id: UUID | str) -> User | None:
         validate_param('id', id, [str, UUID])
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
             cursor.execute(
                 """
@@ -57,7 +61,7 @@ class UserQueries:
     def get_user_by_username(self, username: str) -> User | None:
         validate_param('username', username, str)
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
             cursor.execute(
                 """
@@ -75,7 +79,7 @@ class UserQueries:
     def get_user_by_email(self, email: str) -> User | None:
         validate_param('email', email, str)
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
             cursor.execute(
                 """
@@ -94,7 +98,7 @@ class UserQueries:
         validate_param('email', email, str)
         validate_param('password', password, str)
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
             cursor.execute(
                 """

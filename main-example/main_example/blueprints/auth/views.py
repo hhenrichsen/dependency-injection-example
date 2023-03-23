@@ -8,13 +8,17 @@ from flask_jwt_extended import (
     current_user,
 )
 from psycopg2 import DatabaseError
-from . import auth
+from dependency_injector.wiring import Provide, inject
 
-__queries = UserQueries()
+from container import Container
+from . import auth
 
 
 @auth.route("/login", methods=["POST"])
-def login():
+@inject
+def login(
+    users: UserQueries = Provide[Container.user_queries]
+):
     body = request.json
     email = body["email"]
     password = body["password"]
@@ -28,7 +32,7 @@ def login():
 
     try:
         if (
-            user := __queries.get_user_by_email_and_password(email, password)
+            user := users.get_user_by_email_and_password(email, password)
         ) is not None:
             return (
                 jsonify(
@@ -49,7 +53,10 @@ def login():
 
 
 @auth.route("/register", methods=["POST"])
-def register():
+@inject
+def register(
+    users: UserQueries = Provide[Container.user_queries]
+):
     if current_user:
         return (jsonify({"error": "logged in users cannot create users"}), 400)
     body = request.json
@@ -70,7 +77,7 @@ def register():
         return (jsonify({"errors": errors}), 400)
 
     try:
-        if __queries.create_user(username, email, password, display_name) is not None:
+        if users.create_user(username, email, password, display_name) is not None:
             return (jsonify(), 200)
         else:
             return (

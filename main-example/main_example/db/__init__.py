@@ -1,1 +1,1 @@
-from .connection import pool
+from .connection import Connection

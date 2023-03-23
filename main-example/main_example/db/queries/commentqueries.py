@@ -3,15 +3,21 @@ from uuid import UUID
 from db.models import Comment
 
 
-from db import pool
+from db import Connection
 from db.models import Post, User
 from util.valid import validate_param
 
 
 class CommentQueries:
+    def __init__(
+        self,
+        connection: Connection,
+    ):
+        self.__connection = connection
+
     def get_comment_by_id(self, id: str):
         validate_param('id', id, str)
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
 
             cursor.execute(
@@ -40,7 +46,7 @@ class CommentQueries:
         validate_param('offset', offset, int)
         validate_param('count', count, int)
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
 
             cursor.execute(
@@ -68,7 +74,7 @@ class CommentQueries:
         validate_param('author_id', author_id, [str, UUID])
         validate_param('post_id', post_id, [str, UUID])
 
-        with pool.getconn() as connection:
+        with self.__connection.pool.getconn() as connection:
             cursor = connection.cursor()
 
             cursor.execute(
