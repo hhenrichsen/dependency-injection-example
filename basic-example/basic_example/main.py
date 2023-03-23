@@ -17,10 +17,18 @@ _COUNTER_COUNT = 100
 class Counter:
     """
     Takes a list of filters and runs them through `_COUNTER_COUNT` numbers. If the
-    filter passes, it prints its message. Filters are mutually exclusive.
+    filter passes, it prints its message. 
+
+    Filters is a list of tuples. The first tuple is used to parse the current
+    number into a message to be printed. The second is used to determine if the
+    first's message should print.
+    
+    Filters are mutually exclusive.
     """
 
-    def __init__(self, filters: tuple[Callable[[int], any], Callable[[int], bool]]):
+    def __init__(
+        self, filters: list[tuple[Callable[[int], any], Callable[[int], bool]]]
+    ):
         """
         :param filters: The list of filters to run.
         """
